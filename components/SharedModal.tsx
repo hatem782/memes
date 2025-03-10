@@ -1,3 +1,4 @@
+"use client";
 import {
   ArrowDownTrayIcon,
   ArrowTopRightOnSquareIcon,
@@ -8,7 +9,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { AnimatePresence, motion, MotionConfig } from "framer-motion";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSwipeable } from "react-swipeable";
 import { variants } from "../utils/animationVariants";
 import downloadPhoto from "../utils/downloadPhoto";
@@ -27,25 +28,25 @@ export default function SharedModal({
 }: SharedModalProps) {
   const [loaded, setLoaded] = useState(false);
 
-  let filteredImages = memes?.filter((img: string) =>
-    range(index - 15, index + 15).includes(img)
-  );
+  const [currentIndex, setCurrentIndex] = useState(index);
+
+  useEffect(() => {
+    setCurrentIndex(index);
+  }, [index]);
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
       if (index < memes?.length - 1) {
-        changePhotoId(index + 1);
+        setCurrentIndex(index + 1);
       }
     },
     onSwipedRight: () => {
       if (index > 0) {
-        changePhotoId(index - 1);
+        setCurrentIndex(index - 1);
       }
     },
     trackMouse: true,
   });
-
-  let currentImage = memes ? memes[index] : currentPhoto;
 
   return (
     <MotionConfig
@@ -72,7 +73,7 @@ export default function SharedModal({
                 className="absolute"
               >
                 <Image
-                  src={currentImage as string}
+                  src={memes[currentIndex]}
                   width={navigation ? 1280 : 1920}
                   height={navigation ? 853 : 1280}
                   priority
@@ -114,7 +115,7 @@ export default function SharedModal({
               <div className="absolute right-0 top-0 flex items-center gap-2 p-3 text-white">
                 {navigation ? (
                   <a
-                    href={currentImage as string}
+                    href={memes[currentIndex]}
                     className="rounded-full bg-black/50 p-2 text-white/75 backdrop-blur-lg transition hover:bg-black/75 hover:text-white"
                     target="_blank"
                     title="Open fullsize version"
@@ -136,7 +137,7 @@ export default function SharedModal({
                 <button
                   onClick={() =>
                     downloadPhoto(
-                      currentImage as string,
+                      memes[currentIndex],
                       `nextjsconf-pic-${index}`
                     )
                   }
@@ -161,7 +162,7 @@ export default function SharedModal({
             </div>
           )}
           {/* Bottom Nav bar */}
-          {navigation && (
+          {/* {navigation && (
             <div className="fixed inset-x-0 bottom-0 z-40 overflow-hidden bg-gradient-to-b from-black/0 to-black/60">
               <motion.div
                 initial={false}
@@ -175,7 +176,7 @@ export default function SharedModal({
                         x: `${Math.max((index - 1) * -100, 15 * -100)}%`,
                       }}
                       animate={{
-                        scale: currentImage === meme ? 1.25 : 1,
+                        scale: currentIndex === index ? 1.25 : 1,
                         width: "100%",
                         x: `${Math.max(index * -100, 15 * -100)}%`,
                       }}
@@ -183,7 +184,7 @@ export default function SharedModal({
                       onClick={() => changePhotoId(index)}
                       key={index}
                       className={`${
-                        currentImage === meme
+                        currentIndex === index
                           ? "z-20 rounded-md shadow shadow-black/50"
                           : "z-10"
                       } ${index === 0 ? "rounded-l-md" : ""} ${
@@ -195,7 +196,7 @@ export default function SharedModal({
                         width={180}
                         height={120}
                         className={`${
-                          currentImage === meme
+                          currentIndex === index
                             ? "brightness-110 hover:brightness-110"
                             : "brightness-50 contrast-125 hover:brightness-75"
                         } h-full transform object-cover transition`}
@@ -206,7 +207,7 @@ export default function SharedModal({
                 </AnimatePresence>
               </motion.div>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </MotionConfig>
